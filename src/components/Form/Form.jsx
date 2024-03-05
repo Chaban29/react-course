@@ -4,7 +4,7 @@ import { Button } from '../UIComponents/Button/Button';
 import { MyInput } from '../Input/myInput';
 import { useState } from 'react';
 import { posts as postItems } from '../../common/posts/posts';
-import cl from '../../assets/main.module.scss';
+import cl from '../../assets/styles/main.module.scss';
 
 const Form = () => {
   const [posts, setPosts] = useState(postItems);

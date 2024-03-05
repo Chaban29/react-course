@@ -1,5 +1,5 @@
 import * as React from 'react';
-import cl from './assets/main.module.scss';
+import cl from './assets/styles/main.module.scss';
 import { Form } from './components/Form/Form';
 
 const App = () => {

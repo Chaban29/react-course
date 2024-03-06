@@ -48,8 +48,10 @@ body {
   padding: 10px;
   display: flex;
   flex-direction: column;
+  justify-content: center;
+  margin-top: 50px;
   gap: 10px;
-  max-width: 50%;
+  max-width: 100%;
 }
 
 #input {
@@ -83,3 +85,43 @@ body {
 .selectedPosts__block {
   margin-left: 15px;
 }
+
+// ModalWindow Styles
+
+.modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  display: none;
+  background: rgba(#323232, 0.8);
+}
+
+.modal.active {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.modal__content {
+  padding: 25px;
+  border-radius: 16px;
+  width: 450px;
+  height: 300px;
+  background: #f3f5f9;
+}
+
+.create {
+  text-align: center;
+  font-size: 1.5rem;
+  color: #323232;
+  font-weight: 700;
+  text-decoration: underline;
+}
+
+.form > .delete {
+  margin-bottom: 20px;
+  margin-left: 18px;
+}
+

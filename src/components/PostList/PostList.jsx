@@ -1,6 +1,8 @@
 import * as React from 'react';
 import cl from '../../assets/styles/main.module.scss';
 import { PostItem } from '../Post/PostItem';
+import { CSSTransition, TransitionGroup } from 'react-transition-group';
+import '../../assets/styles/animation.css';
 
 const PostList = ({ title, posts, remove }) => {
   return (
@@ -8,14 +10,13 @@ const PostList = ({ title, posts, remove }) => {
       <div className={cl.post__title}>
         <h1 className={cl.post__capture}>{title}</h1>
       </div>
-      {posts.map((post, index) => (
-        <PostItem
-          remove={remove}
-          key={post.id}
-          number={index + 1}
-          post={post}
-        />
-      ))}
+      <TransitionGroup>
+        {posts.map((post, index) => (
+          <CSSTransition key={post.id} timeout={500} classNames='animation'>
+            <PostItem remove={remove} number={index + 1} post={post} />
+          </CSSTransition>
+        ))}
+      </TransitionGroup>
     </div>
   );
 };

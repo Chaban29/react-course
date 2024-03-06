@@ -16,7 +16,7 @@ const PostItem = (props) => {
         className={cl.delete}
         type='button'
       >
-        {props.post.textButton}
+        {props.delete}
       </Button>
     </div>
   );

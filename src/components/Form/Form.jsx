@@ -2,9 +2,10 @@ import * as React from 'react';
 import { PostList } from '../PostList/PostList';
 import { Button } from '../UIComponents/Button/Button';
 import { MyInput } from '../Input/myInput';
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { posts as postItems } from '../../common/posts/posts';
 import cl from '../../assets/styles/main.module.scss';
+import { PostFilter } from '../PostFilter/PostFilter';
 
 const Form = () => {
   const [posts, setPosts] = useState(postItems);
@@ -14,6 +15,12 @@ const Form = () => {
     body: '',
   });
   const [isButtonDisabled, setIsButtonDisabled] = useState(true);
+
+  const [filter, setFilter] = useState({ sort: '', query: '' });
+
+  const deletePostHandler = (post) => {
+    setPosts(posts.filter((p) => p.id !== post.id));
+  };
 
   const handlerAddedNewPost = () => {
     if (post.title !== '' && post.body !== '') {
@@ -34,6 +41,22 @@ const Form = () => {
       setIsButtonDisabled(true);
     }
   };
+
+  const sortedPosts = useMemo(() => {
+    if (filter.sort) {
+      return [...posts].sort((a, b) =>
+        a[filter.sort].localeCompare(b[filter.sort])
+      );
+    }
+    return posts;
+  }, [filter.sort, posts]);
+
+  const sortedAndSearchedPosts = useMemo(() => {
+    return sortedPosts.filter((post) =>
+      post.title.toLowerCase().includes(filter.query.toLowerCase())
+    );
+  }, [filter.query, sortedPosts]);
+
   return (
     <div>
       <form className={cl.post__form}>
@@ -63,7 +86,16 @@ const Form = () => {
           Add new post
         </Button>
       </form>
-      <PostList title='Posts' posts={posts} />
+      <PostFilter filter={filter} setFilter={setFilter} />
+      {sortedAndSearchedPosts.length === 0 ? (
+        <h1 className={cl.postList__title}>Posts is Empty</h1>
+      ) : (
+        <PostList
+          remove={deletePostHandler}
+          title='Posts'
+          posts={sortedAndSearchedPosts}
+        />
+      )}
     </div>
   );
 };

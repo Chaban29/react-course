@@ -62,3 +62,24 @@ body {
     outline: none;
   }
 }
+
+.postList__title {
+  text-align: center;
+  padding-top: 10px;
+  font-weight: 600;
+  color: #323232;
+}
+
+.selectedPosts__block > select {
+  padding: 5px 15px;
+  background: #f3f5f9;
+  border-radius: 10px;
+  border: none;
+  color: #323232;
+  font-weight: 700;
+  margin-left: 20px;
+}
+
+.selectedPosts__block {
+  margin-left: 15px;
+}

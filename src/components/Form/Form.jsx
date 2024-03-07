@@ -10,11 +10,16 @@ import { usePosts } from '../../hooks/usePost/usePost';
 import { PostService } from '../../API/PostService/PostService';
 import { Loader } from '../UIComponents/Loader/Loader';
 import { useFetching } from '../../hooks/useFetching/useFetching';
+import { getPageCount, getPagesArray } from '../../utils/pages';
+import { Pagination } from '../Pagination/Pagination';
 
 const Form = () => {
   const [isButtonDisabled, setIsButtonDisabled] = useState(true);
   const [filter, setFilter] = useState({ sort: '', query: '' });
   const [modal, setModal] = useState(false);
+  const [totalPages, setTotalPages] = useState(0);
+  const [limit, setLimit] = useState(10);
+  const [page, setPage] = useState(1);
   const [posts, setPosts] = useState([]);
   const [post, setPost] = useState({
     id: Date.now(),
@@ -24,13 +29,21 @@ const Form = () => {
   const sortedAndSearchedPosts = usePosts(posts, filter.sort, filter.query);
 
   const [fetchPosts, isPostsLoading, postError] = useFetching(async () => {
-    const response = await PostService.getAll();
+    const response = await PostService.getAll(limit, page);
     setPosts(response.data);
+    const totalCount = response.headers['x-total-count'];
+    setTotalPages(getPageCount(totalCount, limit));
   });
+
+  let pagesArray = getPagesArray(totalPages);
 
   useEffect(() => {
     fetchPosts();
-  }, []);
+  }, [page]);
+
+  const changePage = (page) => {
+    setPage(page);
+  };
 
   const deletePostHandler = (post) => {
     setPosts(posts.filter((p) => p.id !== post.id));
@@ -58,60 +71,54 @@ const Form = () => {
   };
 
   return (
-    <div className={cl.form}>
-      <Button className={cl.delete} onClick={() => setModal(true)}>
-        Create Post
-      </Button>
-      <ModalWindow visible={modal} setVisible={setModal}>
-        <h3 className={cl.create}>Create Post</h3>
-        <form className={cl.post__form}>
-          <MyInput
-            type='text'
-            name='title'
-            placeholder='Post title'
-            id={cl.input}
-            value={post.title}
-            onChange={handleInputChange}
+    <div className='app__items'>
+      <div className={cl.form}>
+        <Button className={cl.delete} onClick={() => setModal(true)}>
+          Create Post
+        </Button>
+        <ModalWindow visible={modal} setVisible={setModal}>
+          <h3 className={cl.create}>Create Post</h3>
+          <form className={cl.post__form}>
+            <MyInput
+              type='text'
+              name='title'
+              placeholder='Post title'
+              id={cl.input}
+              value={post.title}
+              onChange={handleInputChange}
+            />
+            <MyInput
+              type='text'
+              name='body'
+              placeholder='Post body'
+              id={cl.input}
+              value={post.body}
+              onChange={handleInputChange}
+            />
+            <Button
+              id='disabled'
+              onClick={handlerAddedNewPost}
+              className={cl.delete}
+              type='button'
+              disabled={isButtonDisabled}
+            >
+              Add new post
+            </Button>
+          </form>
+        </ModalWindow>
+        <PostFilter filter={filter} setFilter={setFilter} />
+        {isPostsLoading === true ? (
+          <Loader />
+        ) : (
+          <PostList
+            remove={deletePostHandler}
+            title='Posts'
+            posts={sortedAndSearchedPosts}
           />
-          <MyInput
-            type='text'
-            name='body'
-            placeholder='Post body'
-            id={cl.input}
-            value={post.body}
-            onChange={handleInputChange}
-          />
-          <Button
-            id='disabled'
-            onClick={handlerAddedNewPost}
-            className={cl.delete}
-            type='button'
-            disabled={isButtonDisabled}
-          >
-            Add new post
-          </Button>
-        </form>
-      </ModalWindow>
-      <PostFilter filter={filter} setFilter={setFilter} />
-      {sortedAndSearchedPosts.length === 0 ? (
-        <h1 className={cl.postList__title}>Posts is Empty</h1>
-      ) : (
-        <PostList
-          remove={deletePostHandler}
-          title='Posts'
-          posts={sortedAndSearchedPosts}
-        />
-      )}
-      {isPostsLoading === true ? (
-        <Loader />
-      ) : (
-        <PostList
-          remove={deletePostHandler}
-          title='Posts'
-          posts={sortedAndSearchedPosts}
-        />
-      )}
-      {postError && <h1>Posts Error...</h1>}
+        )}
+        {postError && <h1>Posts Error...</h1>}
+      </div>
+      <Pagination page={page} changePage={changePage} totalPages={totalPages} />
     </div>
   );
 };

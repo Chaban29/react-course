@@ -7,28 +7,28 @@ import cl from '../../assets/styles/main.module.scss';
 import { PostFilter } from '../PostFilter/PostFilter';
 import { ModalWindow } from '../ModalWindow/ModalWindow';
 import { usePosts } from '../../hooks/usePost/usePost';
-import axios from 'axios';
+import { PostService } from '../../API/PostService/PostService';
+import { Loader } from '../UIComponents/Loader/Loader';
+import { useFetching } from '../../hooks/useFetching/useFetching';
 
 const Form = () => {
+  const [isButtonDisabled, setIsButtonDisabled] = useState(true);
+  const [filter, setFilter] = useState({ sort: '', query: '' });
+  const [modal, setModal] = useState(false);
   const [posts, setPosts] = useState([]);
   const [post, setPost] = useState({
     id: Date.now(),
     title: '',
     body: '',
   });
-  const [isButtonDisabled, setIsButtonDisabled] = useState(true);
-  const [filter, setFilter] = useState({ sort: '', query: '' });
-  const [modal, setModal] = useState(false);
   const sortedAndSearchedPosts = usePosts(posts, filter.sort, filter.query);
 
+  const [fetchPosts, isPostsLoading, postError] = useFetching(async () => {
+    const response = await PostService.getAll();
+    setPosts(response.data);
+  });
+
   useEffect(() => {
-    const fetchPosts = async () => {
-      const response = await axios.get(
-        'https://jsonplaceholder.typicode.com/posts'
-      );
-      const result = await response.data;
-      setPosts(result);
-    };
     fetchPosts();
   }, []);
 
@@ -102,6 +102,16 @@ const Form = () => {
           posts={sortedAndSearchedPosts}
         />
       )}
+      {isPostsLoading === true ? (
+        <Loader />
+      ) : (
+        <PostList
+          remove={deletePostHandler}
+          title='Posts'
+          posts={sortedAndSearchedPosts}
+        />
+      )}
+      {postError && <h1>Posts Error...</h1>}
     </div>
   );
 };
